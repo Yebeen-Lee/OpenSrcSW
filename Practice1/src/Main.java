@@ -13,12 +13,22 @@ import org.w3c.dom.Element;
 
 class Main{
 	
-	static char read(BufferedReader bfr, int cnt) throws Exception {
+	public static char read(BufferedReader bfr, int cnt) throws Exception {
 		char ch = (char)bfr.read();
 		bfr.mark(cnt);
 		bfr.reset();
 		cnt++;
 		return ch;
+	}
+	
+	// Changing char array to string
+	public static String charArrToStr(int size, char [] targetArr) {
+		char [] charArr = new char[size];
+		for(int k=0; k<size; k++) {
+			charArr[k] = targetArr[k];
+		}
+		String str = new String(charArr);
+		return str;
 	}
 	
 	public static void main(String [] args) throws Exception{
@@ -28,10 +38,11 @@ class Main{
 		char[] title_value = new char[10];
 		char[] body_value = new char[10000];
 		
+		
 		File dir = new File("sample_html");
 		File htmls[] = dir.listFiles();
 
-		// Making Document, element instants
+		// Making Document, element instances
 		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
 		
@@ -39,6 +50,7 @@ class Main{
 		
 		Element docs = docu.createElement("docs");
 		docu.appendChild(docs);
+		
 		
 		// Reading html data
 		for(int j = 0; j<5; j++) {
@@ -72,18 +84,12 @@ class Main{
 					break;
 				}
 			}
-			char [] t_value = new char[i];
-			for(int k=0; k<i; k++) {
-				t_value[k] = title_value[k];
-			}
-			char [] b_value = new char[m];
-			for(int k=0; k<m; k++) {
-				b_value[k] = body_value[k];
-			}
-			String t_value_str = new String(t_value);
-			String b_value_str = new String(b_value);
+			
+			String t_value_str = charArrToStr(i, title_value);
+			String b_value_str = charArrToStr(m, body_value);
+			
 			br.close();
-	
+			
 			// Inserting data into xml file
 			Element doc = docu.createElement("doc");
 			docs.appendChild(doc);
@@ -100,7 +106,7 @@ class Main{
 			
 		}
 		
-		// Making xml file using transformerFactory, DOMSource instants
+		// Making xml file using transformerFactory, DOMSource instances
 		TransformerFactory transformerFactory = TransformerFactory.newInstance();
 		
 		Transformer transformer = transformerFactory.newTransformer();
