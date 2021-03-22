@@ -14,35 +14,39 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-
 public class kuir {
 	
 	public static void main(String[] args) throws Exception{
 		// TODO Auto-generated method stub
-		makeCollection mkColl = new makeCollection();
-		mkColl.makeColl();
-		//makeKeyword mkKwd = new makeKeyword();
-			/*
-			KeywordExtractor ke = new KeywordExtractor();
-			KeywordList kl = ke.extractKeyword(b_value_str, true);
-			for(int c = 0; c<kl.size(); c++) {
-				Keyword kwrd = kl.get(c);
-				System.out.println(kwrd.getString()+"\t"+kwrd.getCnt());
-			}*/
+		
+		// error
+		if (args.length <2) {
+			System.out.println("You need to enter two elements at least.");
+			System.exit(0);
+		}
+		
+		String option = args[0];
+		System.out.println("option : " + option + "start!");
+		
+		String filePath = args[1];
+		File fileOrDir = new File(filePath);
+		System.out.println("filePath : "+filePath);
+		
+		// makeCollection
+		if(option.equals("-c")) {
+			// ./src/sample_html
+			makeCollection mkColl = new makeCollection(fileOrDir);
+			mkColl.makeColl();
+			System.out.println("makeCollection succeeded!");
+		}
 			
-		
-		
-		/*
-		BufferedInputStream in = null;
-		OutputStream out = null;
-		
-		in = new BufferedInputStream(new FileInputStream(new File("collection.xml")));
-		
-		out = new FileOutputStream("index.xml");
-		
-		int s1 = -1;
-		while((s1=in.read())!=-1) out.write(s1);
-		*/
+		// makeKeyword
+		else if(option.equals("-k")) {
+			// ./collection.xml
+			//File file = new File(./collection.xml);
+			makeKeyword mkKwd = new makeKeyword(fileOrDir);
+			mkKwd.makeKeywrd();
+			System.out.println("makeKeyword succeeded!");
+		}
 	}
-
 }

@@ -17,7 +17,12 @@ import org.w3c.dom.Element;
 
 public class makeCollection {
 	
+	File dir;
 	
+	makeCollection(){};
+	makeCollection(File directory){
+		dir = directory;
+	}
 	// Reading each charactor by BufferedReader & counting size
 	public char read(BufferedReader bfr, int cnt) throws Exception {
 		char ch = (char)bfr.read();
@@ -45,7 +50,7 @@ public class makeCollection {
 		char[] body_value = new char[10000];
 		
 		
-		File dir = new File("./src/sample_html");
+		//dir = new File("./src/sample_html");
 		File htmls[] = dir.listFiles();
 
 		// Making Document, element instances
