@@ -25,28 +25,36 @@ public class kuir {
 			System.exit(0);
 		}
 		
+		// get option&path data
 		String option = args[0];
-		System.out.println("option : " + option + "start!");
+		System.out.println("option : " + option + " start!");
 		
 		String filePath = args[1];
 		File fileOrDir = new File(filePath);
-		System.out.println("filePath : "+filePath);
+		System.out.println("filePath : "+filePath + "\n");
 		
 		// makeCollection
 		if(option.equals("-c")) {
-			// ./src/sample_html
+			// filepath : ./src/sample_html
 			makeCollection mkColl = new makeCollection(fileOrDir);
 			mkColl.makeColl();
-			System.out.println("makeCollection succeeded!");
+			System.out.println("\nmakeCollection succeeded!");
 		}
 			
 		// makeKeyword
 		else if(option.equals("-k")) {
-			// ./collection.xml
-			//File file = new File(./collection.xml);
+			// filepath : ./collection.xml
 			makeKeyword mkKwd = new makeKeyword(fileOrDir);
 			mkKwd.makeKeywrd();
-			System.out.println("makeKeyword succeeded!");
+			System.out.println("\nmakeKeyword succeeded!");
+		}
+		
+		// indexer
+		else if(option.equals("-i")) {
+			// filepath : ./index.xml
+			indexer indxer = new indexer(fileOrDir);
+			indxer.mkInvertedFile();
+			System.out.println("\nindexer succeeded!");
 		}
 	}
 }
