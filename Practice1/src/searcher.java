@@ -25,98 +25,109 @@ public class searcher {
 		this.postFile = file;
 		this.query = str;
 		System.out.println("postFile : " + postFile);
-		System.out.println("query : " + query);
+		System.out.println("query : " + query + "\n");
 	}
 	
 	public void search() throws Exception{
-		CalcSim(query, postFile);
-		
-		
+		sort(CalcSim(query, postFile),5); // query와 각 문서와의 유사도 계산 후, top3의 title 출력
 	}
 	
-	public int[] CalcSim(String q, File file) throws Exception {
-		// Reading object
+	// Calculate document similarity
+	public double[] CalcSim(String q, File file) throws Exception {
+		// Reading object from post file
 		Object object = readFile(file);
 		
-		// Reading HashMap data
-		HashMap hashMap = mkDoubleHash((HashMap)object);
+		// TypeCasting an object to HashMap & make HashMap<String, List<String>> to HashMap<String, List<Double>>
+		HashMap hashMap = mkDoubleHash((HashMap)object); // hashMap<String, List<Double>>
 		
-		// Extract keywords and assign weight value 1
+		// Extract keywords and assign weights(value:1)
 		int kwrdCnt = extractKwrds(q).size(); // keywordList.size()
-		int [] similarity = new int [kwrdCnt]; // make int[keywords count]
 		int docCnt = 5;
-		printHashMap_int(queryWeight);
+		double [] sim = new double [docCnt]; // int[keywords count]
+		for(int i = 0; i<sim.length; i++) sim[i] = 0; // initialize sim array
+		
+		// Calculate document similarities
+		// (file HashMap : hashMap, query keywords HashMap : queryWeight)
+		Iterator<String> it = queryWeight.keySet().iterator();
+		String qKey; // queryWeight's current key
+		List<Double> newValue; // size:docCnt, currently typecasted value List<Double>
+		// loop for docCnt
+		for(int id = 0; id<docCnt; id++) {
+			it = queryWeight.keySet().iterator(); //queryWeight's keySet iterator
+			while(it.hasNext()) { // while queryWeigth has a next key
+				qKey = it.next();
+				newValue = (List<Double>)hashMap.get(qKey); // get current key's value List<String> & typecast to List<Double>
+				sim[id] += queryWeight.get(qKey)*newValue.get(id); // similarities evaluated by inner product
+			}
+			sim[id] = Math.round(sim[id]*100)/100.0; // 소수점 셋째자리에서 반올림
+			//System.out.println("sim["+id+"]: "+sim[id]+" (rounded)"); // sim[] 값 출력
+		}
+		return sim;
+	}
+	
+	// Sort document similarities and print top3 doc titles
+	public void sort(double [] sim, int docCnt) throws Exception {
+		// <Sorting>
+		int temp_i = 0, k = 0;
+		double temp = 0.0;
+		int [] top5_id = {0, 1, 2, 3, 4}; // documents' id 정렬해 저장할 배열
+		// 내림차순 정렬(큰 값->작은 값, 값이 동일할 경우 id 빠른 것이 우선)
+		for(int id = 0; id<docCnt; id++) {
+			for(int j = 0; j<(docCnt-1); j++) {
+				if(sim[j]<sim[j+1]) {
+					// sim 배열의 인덱스를 내림차순 정렬
+					temp_i =  top5_id[j];
+					top5_id[j] = top5_id[j+1];
+					top5_id[j+1] = temp_i;
+					// sim 배열을 내림차순 정렬
+					temp = sim[j];
+					sim[j] = sim[j+1];
+					sim[j+1] = temp;
+				}
+			}
+		}
+		
+		// <Printing>
+		// 정렬한 top5_id[] 출력
+		//for(int i = 0; i<top5_id.length; i++) System.out.println("top index["+i +"]: "+top5_id[i]);
 		
 		// Get title value
 		File title_file = new File("./collection.xml");
 		String [] title = getTitle(title_file, docCnt);
-		
-		/*
-		HashMap<String, List<Double>> temp = new HashMap<>();
-		List<Double> t = Arrays.asList(0.25, 4.36, 2.0, 6.66, 0.0);
-		
-		temp.put("라면", t) ;
-		printHashMap_listD(temp);
-		System.out.println((temp.get("라면")).get(2));
-		*/
-		
-		
-		// Calculate document similarity
-		// file HashMap : hashMap, query keywords HashMap : queryWeight
-		// loop for docCnt
-		for(int i = 0; i<docCnt; i++) {
-			//similarity[i] = keywor dList[i]
-		}
-		
-		
-		
-		
-		return similarity;
+		// printing top3 doc titles	
+		System.out.println("< \""+query+"\" document similarity >");
+		for(int i = 0; i<3; i++) System.out.println("Top"+(i+1)+"'s title : " + title[top5_id[i]]);
 	}
 	
-
-	public void sort() {
-		
-	}
-	
+	// change HashMap<String, List<String>> to HashMap<String, List<Double>>
 	public HashMap<String, List<Double>> mkDoubleHash(HashMap hash) {
-		HashMap<String, List<Double>> doubleHash = new HashMap<>(); // double HashMap has 10 elements(id:0~4)
+		HashMap<String, List<Double>> doubleHash = new HashMap<>(); 
 		Iterator<String> it = hash.keySet().iterator();
-		double [] weight = new double[5];
 		
 		while(it.hasNext()) { // if s HashMap's key exists
 			String key = it.next(); // get key
-			List<String> originValue = (List<String>) hash.get(key); // get value
-			List<Double> newValue = new ArrayList<>();
+			List<String> originValue = (List<String>) hash.get(key); // get value, originValue's size:10(id, weight, id, weight, ...)
+			List<Double> newValue = new ArrayList<>(); // size:5(index==id:0~4)(weight, weight, weight, weight, weight)
 			int i = 0;
-			// here
-			while(i<originValue.size()) {
-				if(newValue.size() == 10) break;
-				for(double id = 0.0; id < 5.0; id += 1.0) {
-					if (Double.parseDouble(originValue.get(i))==id) { // if this id has a weight
-						System.out.println("exist id!");
-						newValue.add(id);
-						newValue.add(Double.parseDouble(originValue.get(++i)));
-					}
-					else { // if this id doesn't have a weight
-						System.out.println("there's no such a id!");
-						newValue.add(id);
-						newValue.add(0.0);
-					}
+			for(double id = 0.0; id < 5.0; id += 1.0) {
+				if (i==originValue.size()) { // originValue List에 더 이상 id, value 값이 없으면 newValue List 끝까지 0.0 weight로 채우기
+					while(newValue.size()<5) newValue.add(0.0);
+					break;
+				}
+				if(Double.parseDouble(originValue.get(i))==id) { // originValue List에 id가 있으면 해당 weight를 newValue.add()
+					newValue.add(Double.parseDouble(originValue.get(++i)));
 					i++;
 				}
+				else newValue.add(0.0); // originValue List에 id 없으면 0.0으로 weight 채우기
 			}
-			doubleHash.put(key,newValue);
-			System.out.println(key + " -> " + originValue);
-			System.out.println(key + " -> " + newValue);
-			// to hear again
+			doubleHash.put(key,newValue); // 해당 키워드의 double weight list인 newValue를 doubleHash.put()
 		}
-		
 		return doubleHash;
 	}
 	
+	// Read collection.xml and get titles of documents
 	public String [] getTitle(File file, int docCnt) throws Exception {
-		String [] title = new String [5];
+		String [] title = new String [docCnt];
 		char temp;
 		int count = 0;
 		FileInputStream input = new FileInputStream(file);
@@ -152,6 +163,7 @@ public class searcher {
 		return ch;
 	}
 	
+	// Read a postfile and return an object
 	public Object readFile(File file) throws ClassNotFoundException, IOException {
 		// Reading object
 		FileInputStream fileInputStream = new FileInputStream(postFile);
@@ -164,6 +176,7 @@ public class searcher {
 		return object;
 	}
 	
+	// return a KeywordList of an input string
 	public KeywordList extractKwrds(String str) {
 		// Extracting keywords
 		KeywordExtractor ke = new KeywordExtractor();
