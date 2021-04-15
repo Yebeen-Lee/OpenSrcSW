@@ -38,7 +38,7 @@ public class searcher {
 
 
 	// Calculate document similarity
-	public double[] CalcSim(String q, File file) throws Exception {
+	public double[] InnerProduct(String q, File file) throws Exception {
 		// Reading object from post file
 		Object object = readFile(file);
 		
