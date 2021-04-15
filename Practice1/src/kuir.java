@@ -33,12 +33,19 @@ public class kuir {
 		File fileOrDir = new File(filePath);
 		System.out.println("filePath : "+filePath + "\n");
 		
+		String option2 = "";
+		option2 = args[2];
+		
+		// 라면에는 면, 분말 스프가 있다.
+		String query = "";
+		query = args[3];
+		
 		// makeCollection
 		if(option.equals("-c")) {
 			// filepath : ./src/sample_html
 			makeCollection mkColl = new makeCollection(fileOrDir);
 			mkColl.makeColl();
-			System.out.println("\nmakeCollection succeeded!");
+			System.out.println("\n makeCollection succeeded!");
 		}
 			
 		// makeKeyword
@@ -46,7 +53,7 @@ public class kuir {
 			// filepath : ./collection.xml
 			makeKeyword mkKwd = new makeKeyword(fileOrDir);
 			mkKwd.makeKeywrd();
-			System.out.println("\nmakeKeyword succeeded!");
+			System.out.println("\n makeKeyword succeeded!");
 		}
 		
 		// indexer
@@ -54,7 +61,27 @@ public class kuir {
 			// filepath : ./index.xml
 			indexer indxer = new indexer(fileOrDir);
 			indxer.mkInvertedFile();
-			System.out.println("\nindexer succeeded!");
+			System.out.println("\n indexer succeeded!");
 		}
+		
+		// searcher
+		else if(option.equals("-s")) {
+			// filepath : ./index.post
+			if (option2.equals("-q")) {
+				query = getString(args); // get String query
+				searcher srcher = new searcher(fileOrDir, query);
+				srcher.search();
+				System.out.println("\n searcher succeeded!");
+			}
+			else {
+				System.out.println("You need to input more options to implement searcher!");
+			}
+		}
+	}
+	
+	public static String getString(String [] args) {
+		String query = args[3];
+		for(int i = 4; i<args.length; i++) query+=(" "+args[i]); 
+		return query;
 	}
 }
