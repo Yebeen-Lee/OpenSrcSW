@@ -32,8 +32,42 @@ public class searcher {
 		sort(CalcSim(query, postFile),5); // query와 각 문서와의 유사도 계산 후, top3의 title 출력
 	}
 	
-	public double[] CalcSim2(String q, File file) throws Exception{
-
+	public double[] CalcSim(String q, File file) throws Exception {
+		// Reading object from post file
+		Object object = readFile(file);
+		
+		// TypeCasting an object to HashMap & make HashMap<String, List<String>> to HashMap<String, List<Double>>
+		HashMap hashMap = mkDoubleHash((HashMap)object); // hashMap<String, List<Double>>
+		
+		// Extract keywords and assign weights(value:1)
+		int kwrdCnt = extractKwrds(q).size(); // keywordList.size()
+		int docCnt = 5;
+		double [] cosSim = new double [docCnt]; // int[keywords count]
+		for(int i = 0; i<cosSim.length; i++) cosSim[i] = 0; // initialize cosSim array
+		
+		double [] innerProductSim = InnerProduct(query, postFile); // innerproduct similarites
+		
+		// Calculate document cosine similarities
+		// (file HashMap : hashMap, query keywords HashMap : queryWeight)
+		Iterator<String> it = queryWeight.keySet().iterator();
+		String qKey; // queryWeight's current key
+		List<Double> newValue; // size:docCnt, currently typecasted value List<Double>
+		// loop for docCnt
+		for(int id = 0; id<docCnt; id++) {
+			it = queryWeight.keySet().iterator(); //queryWeight's keySet iterator
+			double currQSize = 0; // |Q|
+			double currIdSize = 0; // |current id|
+			while(it.hasNext()) { // while queryWeight has a next key
+				qKey = it.next();
+				newValue = (List<Double>)hashMap.get(qKey); // get current key's value List<String> & typecast to List<Double>
+				currQSize += Math.pow(queryWeight.get(qKey),2);
+				currIdSize += Math.pow(newValue.get(id),2);
+			}
+			cosSim[id] = innerProductSim[id]/(Math.sqrt(currQSize)*Math.sqrt(currIdSize));
+			cosSim[id] = Math.round(cosSim[id]*100)/100.0; // 소수점 셋째자리에서 반올림
+			//System.out.println("cosSim["+id+"]: "+cosSim[id]+" (rounded)"); // cosSim[] 값 출력
+		}
+		return cosSim;
 	}
 
 
